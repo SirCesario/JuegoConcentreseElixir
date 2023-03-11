@@ -1,69 +1,132 @@
-defmodule Juegoconcentrese  do
+defmodule Concentrese do
+  @vowels ["A", "E", "I", "O", "U"]
+  @consonants ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M",
+               "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Y", "Z"]
 
-    @abecedario ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-    @vocales ["a", "e", "i", "o", "u"]
+  defstruct board: [], pairs: [], lives: 4, score: 0, streak: 0
 
-def play do
-  IO.puts "*************************************Bienvenido al Juego de Concentrese - ELIXIR ************************************"
-  IO.puts "Ingresa tu NickName"
-  nickname = String.trim(IO.gets(""))
+  def play do
+    board = create_board()
+    game_loop(%Concentrese{board: board})
+  end
 
-  tablero = generar_tablero()
-  puntos = 0
-  vidas = 4
-  max_racha = 0
+  def create_board do
+    vowels = Enum.take_random(@vowels, 3)
+    consonants = Enum.take_random(@consonants, 3)
+    (vowels ++ consonants ++ vowels ++ consonants)
+    |> Enum.shuffle()
+    |> Enum.map(&{&1, :hidden})
+  end
 
-  IO.puts "Jugador : #{nickname}"
-  dibujar_tablero(tablero)
+  def game_loop(state) do
+    display_board(state.board)
+    IO.puts "Lives: #{state.lives} | Score: #{state.score} | Streak: #{state.streak}"
 
-  for _ <- 1..4 do
-    IO.puts "Vidas: #{vidas}\nSeleccione un par : "
-    {fila1, col1} = get_carta()
-    {fila2, col2} = get_carta()
-    carta1 = List.at(List.at(tablero, fila1), col1)
-    carta2 = List.at(List.at(tablero, fila2), col2)
+    case read_pair() do
+      nil -> game_over(state, "Thanks for playing!")
+      pair when pair in state.pairs -> game_loop(state)
+      pair when correct_pair?(pair) ->
+        new_state = state
+                    |> update_board(pair)
+                    |> increase_score(pair)
+                    |> update_streak(pair)
+                    |> add_pair(pair)
+        if all_pairs_found?(new_state.board) do
+          game_over(new_state, "Congratulations! You won!")
+        else
+          game_loop(new_state)
+        end
+      _ ->
+        new_state = state |> decrement_lives()
+        if new_state.lives == 0 do
+          game_over(new_state, "Game over! Better luck next time.")
+        else
+          game_loop(new_state)
+        end
+    end
+  end
 
-    if carta1 == carta2 && fila1 != fila2 && col1 != col2 do
-      actualizar_tablero(tablero, fila1, col1, nil)
-      actualizar_tablero(tablero, fila2, col2, nil)
-      puntos_racha = calcular_puntos(carta1)
-      puntos = puntos + puntos_racha
-      max_racha = max_racha + 1
-      IO.puts "Has encontrado un par de #{carta1}. +#{puntos_racha} puntos."
+  def read_pair do
+    IO.puts "Enter a pair of letters (e.g. Aa):"
+    case String.upcase(IO.gets("")), String.upcase(IO.gets("")) do
+      {letter1, letter2} when letter1 in @vowels and letter2 in @vowels ->
+        {letter1, letter2}
+      {letter1, letter2} when letter1 in @consonants and letter2 in @consonants ->
+        {letter1, letter2}
+      _ ->
+        IO.puts "Invalid pair. Please enter two letters of the same type (vowel or consonant)."
+        read_pair()
+    end
+  end
+
+  def correct_pair?({letter1, letter2}) do
+    letter1 == letter2
+  end
+
+  def update_board({letter1, letter2}, state) do
+    pairs = state.pairs ++ [{letter1, letter2}]
+    board = state.board
+              |> Enum.map(fn
+                {letter, :hidden} when letter == letter1 or letter == letter2 ->
+                  {letter, :revealed}
+                card -> card
+              end)
+    %{state | board: board, pairs: pairs}
+  end
+
+  def increase_score({letter1, letter2}, state) do
+    case {letter1, letter2} do
+      {letter, _} when letter in @vowels -> %{state | score: state.score + 15}
+      {_, letter} when letter in @vowels
+            {_, _} -> %{state | score: state.score + 10}
+    end
+  end
+
+  def update_streak(_, %{streak: 0} = state), do: state
+  def update_streak(_, %{streak: streak, score: score} = state) when streak == 0, do: state
+  def update_streak({letter1, letter2}, %{streak: streak, score: score} = state) do
+    if streak > 0 and List.last(state.pairs) == {letter1, letter2} do
+      %{state | streak: streak + 1, score: score + (streak + 1) * 10}
     else
-      vidas = vidas - 1
-      IO.puts "Sigue intentando."
-    end
-
-    dibujar_tablero(tablero)
-
-    if all_pares_encontrados?(tablero) do
-      IO.puts "**************  ¡¡ FELICIDADES !! HAS ENCONTRADO TODOS LOS PARES.************"
-      break()
+      %{state | streak: 1}
     end
   end
-  IO.puts "Fin de la partida."
-    IO.puts "Jugador: #{nickname}"
-    IO.puts "Puntaje final: #{puntos}"
-    IO.puts "Racha máxima: x#{max_racha}"
-    IO.puts "Vidas: #{vidas}"
-end
 
-  def generar tablero do
-    consonantes = Enum.shuffle(@abecedario -- @vocales) |> Enum.take(3)
-    vocales = Enum.shuffle(@vocales) |> Enum.take
-    pares = consonantes ++ vocales ++ consonantes ++ vocales
-    shuffled_pares = Enum.shuffle(pares)
-    List.chunk_every(shuffled_pares, 4)
+  def add_pair(pair, state) do
+    %{state | pairs: state.pairs ++ [pair]}
   end
 
-  def dibujar_tablero(tablero) do
-
-    
+  def decrement_lives(state) do
+    %{state | lives: state.lives - 1}
   end
 
+  def all_pairs_found?(board) do
+    Enum.all?(board, fn {_, status} -> status == :revealed end)
+  end
 
+  def display_board(board) do
+    board
+    |> Enum.chunk(4)
+    |> Enum.map(fn row ->
+      row
+      |> Enum.map(fn {letter, status} ->
+        case status do
+          :hidden -> "?"
+          :revealed -> letter
+        end
+      end)
+      |> Enum.join(" ")
+    end)
+    |> Enum.join("\n")
+    |> IO.puts()
+  end
 
-
-
+  def game_over(state, message) do
+    display_board(state.board)
+    IO.puts message
+    IO.puts "Final score: #{state.score} | Maximum streak: #{state.streak}"
+    :ok
+  end
 end
+
+Concentrese.play
