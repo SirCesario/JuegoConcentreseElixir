@@ -49,4 +49,21 @@ def play do
     IO.puts "Vidas: #{vidas}"
 end
 
+  def generar tablero do
+    consonantes = Enum.shuffle(@abecedario -- @vocales) |> Enum.take(3)
+    vocales = Enum.shuffle(@vocales) |> Enum.take
+    pares = consonantes ++ vocales ++ consonantes ++ vocales
+    shuffled_pares = Enum.shuffle(pares)
+    List.chunk_every(shuffled_pares, 4)
+  end
+
+  def dibujar_tablero(tablero) do
+
+    
+  end
+
+
+
+
+
 end
