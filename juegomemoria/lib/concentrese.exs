@@ -171,3 +171,4 @@ defmodule MemoriaGame do
 
 end
 
+MemoriaGame.start_juego()
