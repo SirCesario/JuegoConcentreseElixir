@@ -1,4 +1,4 @@
-defmodule MemoriaGame do
+defmodule Concentrese do
   #Definicion para Iniciar el Juego
   @consonantes ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "ñ", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"]
   @vocales ["a", "e", "i", "o", "u"]
@@ -18,19 +18,22 @@ defmodule MemoriaGame do
     ]
 
     juego = %{
-      consonantes: @consonantes,
-      vocales: @vocales,
-      jugador: nickname,
-      tablero: tablero,
+     consonantes: @consonantes,
+     vocales: @vocales,
+     jugador: nickname,
+     tablero: tablero,
+     puntos: puntos,
+     racha_max: racha_max,
+     vidas: vidas
     }
 
-    play_game(juego)
   end
 
   #Definicion de la logica del Juego
-  def play_game(juego) do
+  def play_game() do
 
-    def generar_cartas(0, cartas), do: cartas
+  
+
 
     def generar_cartas(n, cartas) do
       consonantes = @consonantes
@@ -150,9 +153,9 @@ defmodule MemoriaGame do
     def game_over?(_vidas, _tablero) do
       false
     end
+  #end #Cierre del Play Game
 
 
-  end
 
   #Definicion de los resultado
 
@@ -169,6 +172,4 @@ defmodule MemoriaGame do
       end
     end
 
-end
-
-MemoriaGame.start_juego()
+ end
