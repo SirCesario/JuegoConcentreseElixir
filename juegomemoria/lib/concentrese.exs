@@ -17,22 +17,15 @@ defmodule Concentrese do
       [9, 10, 11, 12]
     ]
 
-    juego = %{
-     consonantes: @consonantes,
-     vocales: @vocales,
-     jugador: nickname,
-     tablero: tablero,
-     puntos: puntos,
-     racha_max: racha_max,
-     vidas: vidas
-    }
 
+
+    play_game(nickname, puntos, tablero , vidas, racha_max)
   end
 
   #Definicion de la logica del Juego
   def play_game() do
 
-  
+
 
 
     def generar_cartas(n, cartas) do
@@ -61,9 +54,9 @@ defmodule Concentrese do
       cartas = generar_cartas(6, [])
       cartas_mezcladas = Enum.shuffle(cartas)
       tablero = [
-        [cartas_mezcladas[0], cartas_mezcladas[1], cartas_mezcladas[2], cartas_mezcladas[3]],
-        [cartas_mezcladas[4], cartas_mezcladas[5], cartas_mezcladas[6], cartas_mezcladas[7]],
-        [cartas_mezcladas[8], cartas_mezcladas[9], cartas_mezcladas[10], cartas_mezcladas[11]]
+        [cartas_mezcladas[1], cartas_mezcladas[2], cartas_mezcladas[3], cartas_mezcladas[4]],
+        [cartas_mezcladas[5], cartas_mezcladas[6], cartas_mezcladas[7], cartas_mezcladas[8]],
+        [cartas_mezcladas[9], cartas_mezcladas[10], cartas_mezcladas[11], cartas_mezcladas[12]]
       ]
       {tablero, []}
     end
@@ -173,3 +166,4 @@ defmodule Concentrese do
     end
 
  end
+end
