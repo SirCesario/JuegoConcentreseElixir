@@ -17,15 +17,14 @@ defmodule Concentrese do
       [9, 10, 11, 12]
     ]
 
-
-
     play_game(nickname, puntos, tablero , vidas, racha_max)
   end
 
   #Definicion de la logica del Juego
-  def play_game() do
+  def play_game(nickname, puntos, tablero, vidas, racha_max) do
 
 
+  end
 
 
     def generar_cartas(n, cartas) do
@@ -49,6 +48,7 @@ defmodule Concentrese do
       nuevas_cartas = [carta1, carta2, carta3]
       generar_cartas(n-1, cartas ++ nuevas_cartas)
     end
+
 
     def crear_tablero do
       cartas = generar_cartas(6, [])
@@ -94,7 +94,7 @@ defmodule Concentrese do
 
       # Solicitar al jugador que seleccione una carta
       IO.puts "#{nickname}, es tu turno."
-      IO.puts "Selecciona una carta:"
+      IO.puts "Selecciona una carta:"2,5
       input = IO.gets() |> String.trim()
       card_num = String.to_integer(input)
 
@@ -165,5 +165,5 @@ defmodule Concentrese do
       end
     end
 
- end
+
 end
